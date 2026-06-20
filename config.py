@@ -1,7 +1,10 @@
 """Central configuration. Edit the watchlist and thresholds here — nothing else needs touching."""
 import os
-from dotenv import load_dotenv
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv only needed locally; GitHub uses Actions secrets
 
 # --- Watchlist: DFM tickers verified on Yahoo Finance (.AE suffix) ---
 # Add/remove freely. Format: "TICKER": "Display name"
