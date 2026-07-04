@@ -10,6 +10,7 @@ import summarize
 import notify
 import news
 import state
+import datetime
 from datasource import SOURCES
 
 
@@ -45,6 +46,14 @@ def run():
                 sent += 1
 
     state.save_state(new_state)
+
+    # Weekly heartbeat: proves the desk is alive during silent weeks.
+    if sent == 0 and datetime.datetime.now().weekday() == 4:
+        notify.send_telegram(
+            "✅ <b>Desk heartbeat</b> — ran all week, no signal changes. "
+            "All symbols monitored."
+        )
+
     print(f"--- Done. {sent} alert(s) sent. ---")
 
 
