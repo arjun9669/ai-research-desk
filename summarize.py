@@ -1,3 +1,9 @@
+"""AI layer: signal + headlines → plain-English 'why'. Descriptive only."""
+import config
+
+def _fallback(name: str, sig: dict, ind: dict) -> str:
+    return f"{name}: {sig['reason']}. Informational only, not financial advice."
+
 SYSTEM_PROMPT = (
     "You are a market research assistant. Given a stock's technical signal and "
     "recent headlines, write 1-2 plain-English sentences: what the indicators "
@@ -34,3 +40,4 @@ def summarize(name: str, ticker: str, sig: dict, ind: dict,
         return f"{text} {disclaimer}" if text else _fallback(name, sig, ind)
     except Exception:
         return _fallback(name, sig, ind)
+    
