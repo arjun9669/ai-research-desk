@@ -1,6 +1,6 @@
-yfinance>=0.2.40
+﻿yfinance>=0.2.40
 pandas>=2.0
 requests>=2.31
 anthropic>=0.40
-python-dotenv>=1.0ccxt>=4.0
+python-dotenv>=1.0
 ccxt>=4.0
