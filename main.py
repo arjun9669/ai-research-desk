@@ -1,15 +1,15 @@
 """AI Market Research Desk — main pipeline.
 
 Run:  python main.py
-For the first demo (alert on every stock):  FORCE_ALL=true python main.py
+For the first demo (alert on every symbol):  FORCE_ALL=true python main.py
 """
 import config
-import data
 import indicators
 import signals
 import summarize
 import notify
 import state
+from datasource import SOURCES
 
 
 def run():
@@ -18,8 +18,13 @@ def run():
     new_state = dict(prev)
     sent = 0
 
-    for ticker, name in config.WATCHLIST.items():
-        df = data.get_history(ticker)
+    for source_key, ticker, name in config.WATCHLIST:
+        source = SOURCES.get(source_key)
+        if source is None:
+            print(f"[main] {ticker}: unknown source '{source_key}' — skipped")
+            continue
+
+        df = source.ohlcv(ticker)
         if df is None:
             continue
 
@@ -31,7 +36,6 @@ def run():
         changed = prev.get(ticker) != label
         print(f"{ticker:16} {label:20} (was {prev.get(ticker, '—')})")
 
-        # Alert if: forced, OR the signal changed AND it's not neutral
         if config.FORCE_ALL or (changed and sig["bias"] != "neutral"):
             summary = summarize.summarize(name, ticker, sig, ind)
             msg = notify.build_message(name, ticker, sig, ind, summary)

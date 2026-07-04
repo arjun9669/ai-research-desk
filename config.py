@@ -4,17 +4,20 @@ try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    pass  # dotenv only needed locally; GitHub uses Actions secrets
+    pass  # dotenv only needed locally; GitHub uses Actions secrets 
 
 # --- Watchlist: DFM tickers verified on Yahoo Finance (.AE suffix) ---
 # Add/remove freely. Format: "TICKER": "Display name"
-WATCHLIST = {
-    "EMAAR.AE":       "Emaar Properties",
-    "EMIRATESNBD.AE": "Emirates NBD",
-    "DIB.AE":         "Dubai Islamic Bank",
-    "SALIK.AE":       "Salik",
-    "DFM.AE":         "Dubai Financial Market",
-}
+WATCHLIST = [
+    # (source,   symbol,            display name)
+    ("equity", "EMAAR.AE",        "Emaar Properties"),
+    ("equity", "EMIRATESNBD.AE",  "Emirates NBD"),
+    ("equity", "DIB.AE",          "Dubai Islamic Bank"),
+    ("equity", "SALIK.AE",        "Salik"),
+    ("equity", "DFM.AE",          "Dubai Financial Market"),
+    ("crypto", "BTC/USDT",        "Bitcoin"),
+    ("crypto", "ETH/USDT",        "Ethereum"),
+]
 
 # --- Indicator settings (standard defaults) ---
 RSI_PERIOD       = 14
