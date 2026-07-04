@@ -8,6 +8,7 @@ import indicators
 import signals
 import summarize
 import notify
+import news
 import state
 from datasource import SOURCES
 
@@ -37,8 +38,9 @@ def run():
         print(f"{ticker:16} {label:20} (was {prev.get(ticker, '—')})")
 
         if config.FORCE_ALL or (changed and sig["bias"] != "neutral"):
-            summary = summarize.summarize(name, ticker, sig, ind)
-            msg = notify.build_message(name, ticker, sig, ind, summary)
+            headlines = news.fetch_headlines(name)          # only fires on alerts
+            summary = summarize.summarize(name, ticker, sig, ind, headlines)
+            msg = notify.build_message(name, ticker, sig, ind, summary, headlines)
             if notify.send_telegram(msg):
                 sent += 1
 

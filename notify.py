@@ -8,15 +8,19 @@ FLAT = "⚪"
 _EMOJI = {"bullish": BULL, "bearish": BEAR, "neutral": FLAT}
 
 
-def build_message(name: str, ticker: str, sig: dict, ind: dict, summary: str) -> str:
+def build_message(name, ticker, sig, ind, summary, headlines=None) -> str:
     emoji = _EMOJI.get(sig["bias"], FLAT)
-    rsi = ind.get("rsi")
-    return (
-        f"{emoji} <b>{name}</b>  (<code>{ticker}</code>)\n"
-        f"<b>Signal:</b> {sig['bias'].title()} — {sig['reason']}\n"
-        f"<b>Readings:</b> Price {ind.get('price')} · RSI {rsi}\n\n"
-        f"{summary}"
-    )
+    lines = [
+        f"{emoji} <b>{name}</b>  (<code>{ticker}</code>)",
+        f"<b>Signal:</b> {sig['bias'].title()} — {sig['reason']}",
+        f"<b>Readings:</b> Price {ind.get('price')} · RSI {ind.get('rsi')}",
+        "",
+        summary,
+    ]
+    if headlines:
+        lines += ["", "<b>Recent news:</b>"]
+        lines += [f"• {h['title']} <i>({h['source']})</i>" for h in headlines[:3]]
+    return "\n".join(lines)
 
 
 def send_telegram(text: str) -> bool:
