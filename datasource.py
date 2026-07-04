@@ -47,5 +47,5 @@ class CryptoSource:
 
 SOURCES: dict[str, DataSource] = {
     "equity": YahooSource(),
-    "crypto": CryptoSource(),
+    "crypto": CryptoSource(exchange="bybit"),
 }
