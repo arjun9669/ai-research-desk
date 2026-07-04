@@ -33,7 +33,7 @@ HISTORY_PERIOD   = "2y"    # enough bars for the 200-day average + crossover
 # --- Behaviour ---
 # When True, sends an alert for every stock on every run (use for the first demo).
 # When False, sends ONLY when a stock's signal changes vs. the last run (normal mode).
-FORCE_ALL = os.getenv("FORCE_ALL", "true").lower() == "true"
+FORCE_ALL = os.getenv("FORCE_ALL", "false").lower() == "true"
 
 STATE_FILE = "state.json"
 
