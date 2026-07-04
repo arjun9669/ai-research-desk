@@ -31,8 +31,10 @@ jobs:
 
       - name: Persist signal state
         run: |
+          set -x
           git config user.name  "research-desk-bot"
           git config user.email "actions@github.com"
-          git add state.json
+          git add -f state.json
           git diff --staged --quiet || git commit -m "update signal state [skip ci]"
+          git pull --rebase origin main || true
           git push
