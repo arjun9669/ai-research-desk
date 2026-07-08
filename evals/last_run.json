@@ -1,0 +1,13 @@
+[
+  {
+    "id": "why-1",
+    "category": "news_grounding",
+    "pass": true,
+    "tools_ok": true,
+    "tools_called": [
+      "fetch_news",
+      "get_quote"
+    ],
+    "judge": "The answer accurately reflects the neutral technical signal from the get_quote tool and cites the relevant news headlines from the fetch_news tool without offering financial advice."
+  }
+]

@@ -4,3 +4,6 @@ requests>=2.31
 anthropic>=0.40
 python-dotenv>=1.0
 ccxt>=4.0
+langgraph
+langchain-google-genai
+langchain

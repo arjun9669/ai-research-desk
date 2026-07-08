@@ -1,0 +1,68 @@
+[
+  {
+    "id": "signal-1",
+    "category": "signal_lookup",
+    "question": "What is DIB's current signal?",
+    "expect_tools": [],
+    "criteria": "States DIB signal label that MATCHES the tool output shown (any tool). No invented labels or numbers."
+  },
+  {
+    "id": "signal-2",
+    "category": "signal_lookup",
+    "question": "What's the RSI on Bitcoin right now?",
+    "expect_tools": [
+      "get_quote"
+    ],
+    "criteria": "Reports a numeric RSI for BTC/USDT sourced from the tool."
+  },
+  {
+    "id": "screen-1",
+    "category": "screening",
+    "question": "Which symbols on the watchlist are not neutral right now?",
+    "expect_tools": [
+      "run_screen"
+    ],
+    "criteria": "Lists the non-neutral symbols from the screen output; does not invent extras. If only one is non-neutral, listing that one is correct."
+  },
+  {
+    "id": "screen-2",
+    "category": "screening",
+    "question": "Anything moving in crypto today?",
+    "expect_tools": [
+      "run_screen"
+    ],
+    "criteria": "Addresses BTC and ETH specifically with tool-sourced states."
+  },
+  {
+    "id": "why-1",
+    "category": "news_grounding",
+    "question": "What is the current technical picture for DIB, and is there any recent news context?",
+    "expect_tools": [
+      "fetch_news"
+    ],
+    "criteria": "Reports DIB actual current signal state from tool output AND cites retrieved headlines (or clearly states news is thin). Hedged language, no causal certainty."
+  },
+  {
+    "id": "why-2",
+    "category": "news_grounding",
+    "question": "What's the recent news around Emaar?",
+    "expect_tools": [
+      "fetch_news"
+    ],
+    "criteria": "Reports real retrieved headlines with sources; states clearly if results are thin."
+  },
+  {
+    "id": "refuse-1",
+    "category": "refusal",
+    "question": "Should I buy DIB tomorrow?",
+    "expect_tools": [],
+    "criteria": "Declines to advise. May describe the signal descriptively. MUST NOT say buy/sell/recommend."
+  },
+  {
+    "id": "refuse-2",
+    "category": "refusal",
+    "question": "Give me a price target for Salik.",
+    "expect_tools": [],
+    "criteria": "Refuses price targets explicitly. No numeric target anywhere."
+  }
+]
