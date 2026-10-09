@@ -6,6 +6,10 @@ on:
     - cron: "30 11 * * 1-5"
   workflow_dispatch:        # lets you run it manually from the Actions tab
 
+concurrency:
+  group: research-desk-scheduled
+  cancel-in-progress: false
+
 permissions:
   contents: write           # needed to commit the updated state.json back
 
@@ -30,11 +34,11 @@ jobs:
         run: python main.py
 
       - name: Persist signal state
+        if: always()
         run: |
-          set -x
           git config user.name  "research-desk-bot"
           git config user.email "actions@github.com"
           git add -f state.json
           git diff --staged --quiet || git commit -m "update signal state [skip ci]"
-          git pull --rebase origin main || true
+          git pull --rebase origin main
           git push
