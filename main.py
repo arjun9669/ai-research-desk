@@ -1,16 +1,17 @@
-"""AI Market Research Desk — main pipeline.
+"""AI Market Research Desk — scheduled market-data and alert pipeline.
 
-Run:  python main.py
-For the first demo (alert on every symbol):  FORCE_ALL=true python main.py
+Alert state means the last successfully delivered signal, not the last observed
+signal. Failed deliveries must remain eligible for retry on the next run.
 """
+import datetime
+
 import config
 import indicators
-import signals
-import summarize
-import notify
 import news
+import notify
+import signals
 import state
-import datetime
+import summarize
 from datasource import SOURCES
 
 
@@ -19,42 +20,50 @@ def run():
     prev = state.load_state()
     new_state = dict(prev)
     sent = 0
+    failures = []
 
     for source_key, ticker, name in config.WATCHLIST:
-        source = SOURCES.get(source_key)
-        if source is None:
-            print(f"[main] {ticker}: unknown source '{source_key}' — skipped")
-            continue
+        try:
+            source = SOURCES.get(source_key)
+            if source is None:
+                raise ValueError(f"unknown source type: {source_key}")
+            df = source.ohlcv(ticker)
+            if df is None or df.empty:
+                raise ValueError("no usable price history")
+            ind = indicators.compute_all(df)
+            sig = signals.classify(ind)
+            label = sig["label"]
+            changed = prev.get(ticker) != label
+            print(f"{ticker:16} {label:20} (was {prev.get(ticker, '—')})")
 
-        df = source.ohlcv(ticker)
-        if df is None:
-            continue
-
-        ind = indicators.compute_all(df)
-        sig = signals.classify(ind)
-        label = sig["label"]
-        new_state[ticker] = label
-
-        changed = prev.get(ticker) != label
-        print(f"{ticker:16} {label:20} (was {prev.get(ticker, '—')})")
-
-        if config.FORCE_ALL or (changed and sig["bias"] != "neutral"):
-            headlines = news.fetch_headlines(name)          # only fires on alerts
-            summary = summarize.summarize(name, ticker, sig, ind, headlines)
-            msg = notify.build_message(name, ticker, sig, ind, summary, headlines)
-            if notify.send_telegram(msg):
+            should_alert = config.FORCE_ALL or (changed and sig["bias"] != "neutral")
+            if should_alert:
+                headlines = news.fetch_headlines(name)
+                summary = summarize.summarize(name, ticker, sig, ind, headlines)
+                message = notify.build_message(name, ticker, sig, ind, summary, headlines)
+                if not notify.send_telegram(message):
+                    raise RuntimeError("notification not delivered; state retained for retry")
                 sent += 1
 
+            # No alert required or successful delivery: safe to advance state.
+            new_state[ticker] = label
+        except Exception as exc:
+            # Preserve last delivered state for this ticker, so alert attempts retry.
+            failures.append(ticker)
+            print(f"[main] {ticker}: {type(exc).__name__}: {exc}")
+
+    # Save valid progress even when individual tickers fail.
     state.save_state(new_state)
 
-    # Weekly heartbeat: proves the desk is alive during silent weeks.
-    if sent == 0 and datetime.datetime.now().weekday() == 4:
-        notify.send_telegram(
-            "✅ <b>Desk heartbeat</b> — ran all week, no signal changes. "
-            "All symbols monitored."
-        )
+    if sent == 0 and not failures and datetime.datetime.now().weekday() == 4:
+        if not notify.send_telegram(
+            "✅ <b>Desk heartbeat</b> — no signal changes requiring alerts."
+        ):
+            failures.append("weekly-heartbeat")
 
-    print(f"--- Done. {sent} alert(s) sent. ---")
+    print(f"--- Done. {sent} delivered alert(s); {len(failures)} failure(s). ---")
+    if failures:
+        raise RuntimeError(f"Research Desk had failed tickers: {', '.join(failures)}")
 
 
 if __name__ == "__main__":
